@@ -1,0 +1,126 @@
+@import "tailwindcss";
+
+/* ─────────────────────────────────────────────────────────────
+   Raton Sushi · Tokens de diseño (Tailwind CSS 4)
+   Paleta: madera clara, bambú, matcha, salmón, nori
+───────────────────────────────────────────────────────────── */
+@theme {
+  --color-cream: #fbf3e6;
+  --color-cream-deep: #f4e7d2;
+  --color-paper: #fffaf1;
+  --color-matcha: #7fae7a;
+  --color-matcha-deep: #5f8f5b;
+  --color-salmon: #ff9e7d;
+  --color-salmon-deep: #ef7f5a;
+  --color-nori: #2c3327;
+  --color-nori-soft: #48543f;
+  --color-wood: #c9a06b;
+  --color-wood-deep: #a87f4c;
+  --color-soy: #6b4a2f;
+  --color-gold: #e8b04b;
+  --color-blush: #f4b8c4;
+
+  --font-sans: "M PLUS Rounded 1c", "Baloo 2", system-ui, sans-serif;
+  --font-display: "Baloo 2", "M PLUS Rounded 1c", system-ui, sans-serif;
+
+  --animate-belt: belt-slide 1.6s linear infinite;
+  --animate-steam-up: steam-up 3.2s ease-in-out infinite;
+  --animate-leaf-drift: leaf-drift 9s ease-in-out infinite;
+
+  @keyframes belt-slide {
+    from { background-position-x: 0; }
+    to { background-position-x: 44px; }
+  }
+  @keyframes steam-up {
+    0% { transform: translateY(6px) scaleX(1); opacity: 0; }
+    35% { opacity: 0.75; }
+    100% { transform: translateY(-26px) scaleX(1.25); opacity: 0; }
+  }
+  @keyframes leaf-drift {
+    0%, 100% { transform: translateY(0) rotate(-4deg); }
+    50% { transform: translateY(-14px) rotate(5deg); }
+  }
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--color-cream-deep);
+  color: var(--color-nori);
+  overflow: hidden;
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Scrollbars "de la casa": raíl de madera clara y pulgar de
+   bambú/matcha, integrados en la estética del bar en vez de la
+   barra gris del sistema. Finos, redondeados y con hover vivo.
+───────────────────────────────────────────────────────────── */
+.nice-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #bda077 rgba(201, 160, 107, 0.16);
+}
+.nice-scroll::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+.nice-scroll::-webkit-scrollbar-track {
+  background: rgba(201, 160, 107, 0.16);
+  border-radius: 999px;
+  margin: 6px;
+}
+.nice-scroll::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #d6b685 0%, #bd9260 100%);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  border-radius: 999px;
+  transition: background 0.2s ease;
+}
+.nice-scroll::-webkit-scrollbar-thumb:hover,
+.nice-scroll::-webkit-scrollbar-thumb:active {
+  background: linear-gradient(180deg, #8fbd84 0%, #5f8f5b 100%);
+  background-clip: padding-box;
+}
+.nice-scroll::-webkit-scrollbar-corner {
+  background: transparent;
+}
+/* Variante horizontal de la cinta: pulgar más ancho y plano */
+.nice-scroll-x::-webkit-scrollbar-thumb {
+  background: linear-gradient(90deg, #d6b685 0%, #bd9260 100%);
+  background-clip: padding-box;
+}
+
+/* Cinta transportadora del kaiten */
+.kaiten-belt {
+  background:
+    repeating-linear-gradient(
+      90deg,
+      #d9b47f 0px,
+      #d9b47f 36px,
+      #bd9260 36px,
+      #bd9260 44px
+    );
+  animation: var(--animate-belt);
+}
+
+/* Vitrina de ingredientes: scroll suave y gestos fluidos */
+.nice-scroll {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Accesibilidad: respeta reduce-motion en el fondo ambiental */
+@media (prefers-reduced-motion: reduce) {
+  .kaiten-belt {
+    animation: none;
+  }
+}

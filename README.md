@@ -1,69 +1,95 @@
-Hola amigo, soy un gran fan de los juegos casuales y adictivos para celular. Hoy quiero que diseñemos y programemos un juego web genial, ultra relajante y gratificante, jugable en cualquier dispositivo: celular en vertical, celular en horizontal, tablet y escritorio.
+# [🍣 Ratón Sushi · Kaiten Bar](https://coiponorte.github.io/Raton-Sushi/)
 
-La idea es un juego acogedor de barra de sushi giratoria (Kaiten Sushi Bar), donde preparas nigiris y rolls por capas y sirves a los clientes en un flujo continuo y relajado, para ver cuántos pedidos perfectos logras entregar antes de que se acabe el tiempo y romper tu propio récord.
+> Un acogedor bar de sushi giratorio donde un ratoncito **itamae** te enseña a montar nigiris **por capas**. Sirve pedidos perfectos, encadena combos hasta **×2.5** y rompe tu récord antes de que se apague la lámpara de papel.
 
-Jugabilidad
-Un ticket de pedido muestra la pieza de sushi o combo exacto que pide el cliente y tú debes replicarla arrastrando o tocando ingredientes desde una barra de trabajo hasta el plato de madera o cerámica, en cuatro categorías con pestañas:
+[![🎮 Jugar ahora](https://img.shields.io/badge/🎮_Jugar_ahora-coiponorte.github.io%2FRaton--Sushi-ef7f5a?style=for-the-badge)](https://coiponorte.github.io/Raton-Sushi/)
+[![React 19](https://img.shields.io/badge/React-19-61dafb?logo=react&logoColor=000)](https://react.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6?logo=typescript&logoColor=fff)](https://www.typescriptlang.org)
+[![Sin anuncios ni cuentas](https://img.shields.io/badge/Gratis-sin_anuncios_ni_cuentas-7fae7a)](https://coiponorte.github.io/Raton-Sushi/)
 
-1. Base / Arroz — variedades de base (arroz shari tradicional, arroz negro con sésamo, hoja de nori envuelta, base de pepino para gunkan, inari de tofu frito).
-2. Pescado / Proteína — salmón fresco, atún rojo, pez mantequilla, langostino cocido, anguila unagi glaseada, tamagoyaki (tortilla dulce).
-3. Salsas / Glaseados — soya concentrada, mayonesa sriracha picante, salsa unagi dulce, crema de palta/aguacate, wasabi fundido; se vierte con una animación de hilo/goteo sobre la pieza.
-4. Toppings / Decoración — ovas de tobiko rojo, sésamo tostado bicolor, cebollín fino, tiras de nori, láminas de jengibre gari, caviar vegetal.
+**Dirección del bar:** <https://coiponorte.github.io/Raton-Sushi/> — funciona en el navegador de tu móvil (vertical u horizontal), tablet y ordenador. Sin instalar nada, sin registrarte.
 
-Reglas y feedback:
-* Botón grande SERVIR, más deshacer y limpiar plato siempre a un toque.
-* Si la pieza coincide exactamente con el ticket: puntos + confetti + el plato sale deslizándose por la cinta giratoria hacia el cliente + bonificación de segundos.
-* Si falla: se rompe el combo, vibra la barra, pero el sushi se conserva para corregirlo.
-* Multiplicador de combo creciente (hasta ×2.5) por aciertos encadenados.
-* Dificultad progresiva: los pedidos van ganando capas, salsas cruzadas y toppings repetidos (×2) conforme avanzas.
-* Partidas de ~90 segundos con cronómetro que se extiende al acertar: ciclo corto, adictivo y rejugable.
+---
 
-Estética
-Estética japonesa moderna y acogedora (cozy sushi bar / kawaii minimalista): tonos cálidos (madera clara, bambú, verde matcha, salmón, negro nori), tipografía redondeada, fondo con degradados suaves y motas flotantes de vapor de arroz y hojas de bambú.
+## 🎮 Dos formas de cocinar
 
-* Mascota protagonista: un ratoncito chef itamae con vincha (*hachimaki*) y delantal tradicional, dibujado en SVG, que reacciona en vivo (parpadea, celebra, se preocupa) según cómo te vaya.
-* Sushi 100 % procedural en SVG: plato de cerámica, textura del grano de arroz, vetas del salmón/atún, brillo del glaseado y toppings dibujados al vuelo — nada de imágenes externas. El ticket y el plato real deben usar el mismo motor de dibujo, para que la referencia sea siempre fiel.
-* Sonido ASMR de sushi bar sintetizado con WebAudio, sin archivos de audio: corte fino con cuchillo, chisporroteo de soplete aburi, toque sobre madera, arpegio de éxito y fanfarria de récord. Con botón de silencio persistente.
-* Animaciones fluidas con spring physics (Framer Motion): el plato se coloca con rebote, las ovas y sésamo caen con pop, el vapor sube en bucle.
+| Modo | Para quién |
+| --- | --- |
+| 🍤 **Servicio rápido** | 90 segundos contra el reloj, combos hasta ×2.5 y récord en yenes. Ciclo corto y adictivo. |
+| 🍵 **Modo Zen** | **Sin reloj ninguno.** Un sushi por nivel, a tu ritmo. Los fallos no castigan: el chef solo te susurra qué corregir. Cada 3 niveles la pieza gana una capa y vas subiendo de título, de *Aprendiz de arroz* a *Leyenda del kaiten*. Ideal para desconectar. |
 
-Progresión y persistencia
-Contador de piezas completadas y yenes/puntos acumulados. Guarda de forma persistente el récord histórico y la preferencia de sonido con localStorage, encapsulado en un módulo propio (src/game/storage.ts) protegido contra modo incógnito y listo para migrar a IndexedDB sin tocar el resto del juego.
+Tu mejor marca de cada modo (yenes y nivel zen) se guarda sola en tu dispositivo.
 
-Diseño responsive (muy importante)
-El juego debe priorizar siempre el área jugable por encima de los contadores:
-* HUD flotante y mínimo: la barra de tiempo pegada al borde superior de la pantalla (unos 5px, de lado a lado, que cambia a rojo en los últimos 10s) y los contadores en pastillas pequeñas translúcidas que flotan sobre la escena sin robar altura. Nada de barras sólidas gruesas.
-* Horizontal / tablet / escritorio: tres columnas → ticket del pedido a la izquierda, plato de sushi al centro (protagonista, ocupando toda la altura disponible), barra de ingredientes a la derecha. Centrado con ancho máximo para que no se deforme en monitores ultrapanorámicos.
-* Celular en vertical: layout apilado → ticket en barra horizontal compacta arriba, plato al centro, barra de ingredientes abajo con las fichas en una sola fila.
-* Usa un hook de orientación (tipo useIsPortrait) para que girar el dispositivo a mitad de partida reorganice la mesa sin perder la pieza ni el pedido.
-* En el ticket, el sushi de referencia debe verse grande y nítido: recorta el encuadre del SVG justo alrededor del plato (sin elementos decorativos de fondo), sobre una zona de exhibición clara con sombra suave, de modo que llene el marco sea cual sea el número de capas.
+## 🎏 Cómo se juega
 
-Stack técnico
-React 19 + TypeScript (estricto) + Vite 7 + Tailwind CSS 4 + Framer Motion + iconos Lucide. Código modular y limpio, separando: tipos y constantes de equilibrio, datos de ingredientes y paletas, lógica (generación de pedidos, validación y puntuación), sonido, persistencia, componentes visuales y pantallas (inicio, partida, fin).
+Cada cliente llega con un **ticket** que muestra la pieza exacta que quiere. Tu misión: replicarla en el plato.
 
-Requerimientos de despliegue
-El proyecto se llamará Raton-Sushi y debe quedar listo para GitHub y GitHub Pages en:
-* Repositorio: https://github.com/CoipoNorte/Raton-Sushi
-* Web: https://coiponorte.github.io/Raton-Sushi/
+1. **Lee el ticket** — el dibujo es tu referencia exacta, capa a capa. Debajo van las fichas con nombres y cantidades (ojo al **×2**).
+2. **Monta la pieza** — añade capas desde la barra de trabajo, en 4 pestañas:
 
-Archivos de despliegue obligatorios:
-1. `vite.config.ts` con `base: '/Raton-Sushi/'` (coincidiendo exactamente con el repositorio).
-2. `deploy.bat` avanzado de 11 pasos en Windows:
-   - REGLA DE ORO: Todas las llamadas a `npm`, `npx`, `git` y `node` dentro de scripts .bat deben usar `call` obligatoriamente para no matar la ejecución del proceso padre.
-   - Definir variables `REPO_URL=https://github.com/CoipoNorte/Raton-Sushi.git` y `WEB_URL=https://coiponorte.github.io/Raton-Sushi/`.
-   - Paso [1/11] Comprobar Node.js y npm.
-   - Paso [2/11] Verificar Git, `git init` si aplica, y asegurar `origin` a `%REPO_URL%` y rama `main`.
-   - Paso [3/11] Auto-crear `.gitignore` completo si no existe.
-   - Paso [4/11] Insertar `p.name='raton-sushi'`, `predeploy='npm run build'` y `deploy='gh-pages -d dist'` en `package.json` mediante Node.js.
-   - Paso [5/11] Insertar/verificar `base: '/Raton-Sushi/'` en `vite.config.ts` mediante Node.js.
-   - Paso [6/11] `call npm install` e instalación asegurada de `gh-pages` como devDependency (`npm ls gh-pages` + `npm install -D gh-pages`).
-   - Paso [7/11] `call npm run build` y validación de `dist\index.html`.
-   - Paso [8/11] `call git add -A` y `git commit -m "chore: despliegue Raton Sushi"`.
-   - Paso [9/11] `call git push -u origin main`.
-   - Paso [10/11] `call npm run deploy` o fallback `call npx gh-pages -d dist`.
-   - Paso [11/11] Verificación final de la rama remota `origin/gh-pages` e instrucciones claras para activar GitHub Pages en Settings.
-3. `.gitignore` completo (`node_modules/`, `dist/`, `.vite/`, etc.).
-4. `README.md` profesional y amigable con badges, guía de juego, stack y solución de problemas.
-5. `public/.nojekyll` y pantalla de splash ("Preparando el arroz de sushi…") en `#root` en `index.html` para evitar la página en blanco en GitHub Pages.
-6. `icon.svg` representativo (el ratoncito itamae) como favicon y `<title>Raton Sushi</title>`.
+| Pestaña | Qué encontrarás |
+| --- | --- |
+| 🌾 **Base** | Arroz shari, arroz negro con sésamo, nori envuelta, pepino gunkan, inari |
+| 🐟 **Pescado** | Salmón, atún rojo, pez mantequilla, langostino, unagi glaseada, tamagoyaki |
+| 💧 **Salsas** | Soya, mayonesa sriracha, unagi dulce, crema de palta, wasabi fundido (caen con hilo de verdad) |
+| ✨ **Toppings** | Tobiko, sésamo bicolor, cebollín, tiras de nori, jengibre gari, caviar vegetal |
 
-Entrégame el código estructurado, limpio, comentado en español y optimizado, de forma que pueda copiarlo, pegarlo, ejecutar el .bat y tener el juego funcionando en línea de inmediato. ¡Haz que sea una experiencia tan adictiva y reconfortante que todo el mundo quiera jugarla mientras espera su sushi real!
+3. **SERVIR** — si tu pieza coincide exactamente: yenes 🪙 + confetti + el plato sale volando por la cinta hacia el cliente + **+4 segundos** de regalo.
+
+## 📜 Reglas de la casa (servicio rápido)
+
+- **90 segundos** por jornada; cada pedido perfecto suma +4 s (máx. 99 s en el reloj).
+- **Combo creciente**: cada acierto encadenado sube el multiplicador ×1 → ×1.5 → ×2 → **×2.5**. Todo punto que ganas se multiplica.
+- **Si te equivocas**: se rompe el combo, la mesa vibra… **pero tu pieza se conserva**. Corrige con **deshacer** o **limpiar**; el juego te susurra qué falla («Falta: Nori»).
+- **Dificultad progresiva**: los pedidos ganan capas, salsas cruzadas y toppings repetidos (×2) cuanto mejor juegas.
+- **Récord histórico** guardado automáticamente en tu dispositivo: cierra el navegador y vuelve cuando quieras, tus yenes máximos te esperan.
+
+## 🎮 Controles
+
+| Acción | Táctil | Ratón / teclado |
+| --- | --- | --- |
+| Añadir capa | Toca la ficha **o arrástrala hasta el plato** | Clic en la ficha, o arrástrala al plato |
+| Recorrer el menú | Desliza la cinta (también se mueve sola, como un kaiten real) | Arrastra la cinta o usa la rueda |
+| Servir | Botón **SERVIR** | **Enter** o **Espacio** |
+| Deshacer última capa | Botón ↩ | **Z** |
+| Limpiar el plato | Botón 🗑 | **X** |
+| Silencio ASMR | Botón del altavoz (arriba a la derecha) — se recuerda tu elección | Igual |
+| Pausa y ajustes | Botón ⏸ (arriba a la derecha) | **Esc** o **P** |
+
+**Gira el móvil cuando quieras**: la mesa se reorganiza al momento (vertical = apilado, horizontal = tres columnas) sin perder ni la pieza ni el pedido.
+
+## ⚙️ Ajustes (botón de pausa)
+
+Pulsa **⏸** en cualquier momento: el reloj se congela y se abre el menú de la casa.
+
+- **Auto-avance de pestañas** *(activado por defecto)* — en cuanto completas lo que el ticket pide de una sección, la barra salta sola a la siguiente pendiente y marca la terminada con una ✅ verde. Así montas el sushi sin tocar las pestañas ni una vez. Si prefieres controlarlas tú, desactívalo aquí y se recordará para siempre.
+- **Sonido ASMR** — enciende o apaga el cuchillo, la madera y el soplete aburi.
+- Y las salidas: *seguir cocinando* o *terminar la ronda*.
+
+## 🐭 Consejos del chef ratón
+
+- La **base** siempre se sustituye: si te equivocas de arroz, coloca otra encima sin miedo.
+- Máximo por pieza: 2 proteínas, 2 salsas y 3 capas de topping (el ×2 del ticket cuenta doble).
+- Sirve los pedidos fáciles rápido al principio: encadenar 3-4 aciertos seguidos dispara el multiplicador y las bonificaciones de tiempo se acumulan.
+- Cuando el reloj se pone rojo, prioriza pedidos cortos: mejor un ×1 seguro que perder el combo entero.
+- El orden en que colocas las capas **no importa**: solo cuenta que la pieza final coincida con el ticket.
+
+## ❓ Preguntas frecuentes
+
+**¿Ocupa espacio o pide permisos raros?**
+No. Es una página web: no se instala, no pide permisos y solo guarda tu récord y tu preferencia de sonido en tu propio dispositivo.
+
+**¿Por qué no se oye nada en mi móvil?**
+iOS y Android exigen que el sonido empiece tras un toque en pantalla: pulsa el botón del altavoz (o ¡A cocinar!) y el ASMR del cuchillo, la madera y el soplete aburi cobrará vida.
+
+**¿Se pierde mi récord?**
+Tu mejor marca se guarda sola en el navegador. Solo desaparece si juegas en modo incógnito o borras los datos del sitio.
+
+**¿Puedo jugar con una sola mano?**
+Sí: en vertical todo queda al alcance del pulgar — ticket arriba, plato en medio y la cinta de ingredientes abajo.
+
+## 🧡 Créditos
+
+Sushi, mascota y sonidos son 100 % procedurales (SVG + WebAudio), dibujados y sintetizados en tiempo real: cero imágenes y cero archivos de audio. Hecho con React, arroz tibio, mucho matcha y cariño por el detalle.
+
+**Licencia MIT** — ¡Itadakimasu!

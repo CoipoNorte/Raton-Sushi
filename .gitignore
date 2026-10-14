@@ -1,0 +1,51 @@
+# ─── Dependencias ───────────────────────────────────────────
+node_modules/
+.pnp
+.pnp.js
+
+# ─── Build / salida de Vite ─────────────────────────────────
+dist/
+dist-ssr/
+.vite/
+*.local
+
+# ─── Cachés y herramientas ──────────────────────────────────
+.cache/
+.parcel-cache/
+.eslintcache
+.stylelintcache
+*.tsbuildinfo
+._rs_*.cjs
+._raton_patch_*.cjs
+
+# ─── Logs ───────────────────────────────────────────────────
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ─── Variables de entorno ───────────────────────────────────
+.env
+.env.*
+!.env.example
+
+# ─── Sistema operativo / editores ───────────────────────────
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# ─── Pruebas / cobertura ────────────────────────────────────
+coverage/
+*.lcov

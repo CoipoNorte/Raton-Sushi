@@ -16,9 +16,25 @@
 | Modo | Para quién |
 | --- | --- |
 | 🍤 **Servicio rápido** | 90 segundos contra el reloj, combos hasta ×2.5 y récord en yenes. Ciclo corto y adictivo. |
+| 📋 **Pedidos** | **8 niveles con meta y cronómetro propio.** Cada comanda te pide un número exacto de pedidos perfectos en un tiempo dado (empieza con 3 pedidos en 75 s y termina con 7 en 80 s, con tickets cada vez más complejos). Ganas de **1 a 3 estrellas** según el tiempo que te sobre, y cada nivel abre el siguiente. Perfecto para progresar a mordiscos y volver a por las estrellas que falten. |
 | 🍵 **Modo Zen** | **Sin reloj ninguno.** Un sushi por nivel, a tu ritmo. Los fallos no castigan: el chef solo te susurra qué corregir. Cada 3 niveles la pieza gana una capa y vas subiendo de título, de *Aprendiz de arroz* a *Leyenda del kaiten*. Ideal para desconectar. |
 
-Tu mejor marca de cada modo (yenes y nivel zen) se guarda sola en tu dispositivo.
+Tus marcas de los tres modos (yenes, estrellas de cada nivel y nivel zen) se guardan solas en tu dispositivo.
+
+### 📋 Los 8 niveles de Pedidos
+
+| # | Turno | Pedidos | Tiempo |
+| --- | --- | --- | --- |
+| 1 | Primer turno | 3 | 75 s |
+| 2 | Clientes del mediodía | 4 | 75 s |
+| 3 | Hora punta | 4 | 70 s |
+| 4 | Doble ración | 5 | 75 s |
+| 5 | Salsas cruzadas | 5 | 70 s |
+| 6 | Mesa grande | 6 | 75 s |
+| 7 | Noche de estreno | 6 | 70 s |
+| 8 | Gran banquete | 7 | 80 s |
+
+⭐⭐⭐ si cierras la comanda con mucho tiempo de sobra · ⭐⭐ con margen justo · ⭐ por completarla.
 
 ## 🎏 Cómo se juega
 

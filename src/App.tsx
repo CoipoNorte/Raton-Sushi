@@ -12,6 +12,7 @@ import { useLayout } from "./hooks/useLayout";
 import { useSushiGame } from "./hooks/useSushiGame";
 import { GameOverScreen } from "./screens/GameOverScreen";
 import { GameScreen } from "./screens/GameScreen";
+import { LevelSelectScreen } from "./screens/LevelSelectScreen";
 import { StartScreen } from "./screens/StartScreen";
 
 export default function App() {
@@ -27,9 +28,18 @@ export default function App() {
             key="start"
             bestScore={game.bestScore}
             bestZenLevel={game.bestZenLevel}
+            levelStars={game.levelStars}
             muted={game.muted}
             onToggleMute={game.toggleMute}
             onStart={game.startGame}
+          />
+        )}
+        {game.screen === "levels" && (
+          <LevelSelectScreen
+            key="levels"
+            levelStars={game.levelStars}
+            onPlay={game.startLevel}
+            onBack={game.goHome}
           />
         )}
         {game.screen === "playing" && <GameScreen key="game" game={game} layout={layout} />}

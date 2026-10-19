@@ -101,7 +101,11 @@ export function PauseMenu({
         <div className="text-center">
           <h2 className="font-display text-2xl font-extrabold text-[#4c3520]">Pausa</h2>
           <p className="text-[11px] font-bold text-[#a98d68]">
-            {mode === "zen" ? "El arroz te espera, sin prisa 🍵" : "El reloj está detenido"}
+            {mode === "zen"
+              ? "El arroz te espera, sin prisa 🍵"
+              : mode === "levels"
+                ? "Comanda en espera · reloj detenido"
+                : "El reloj está detenido"}
           </p>
         </div>
 
@@ -135,7 +139,11 @@ export function PauseMenu({
           className="flex w-full items-center justify-center gap-1.5 rounded-2xl border border-[#e3d2b2] py-2 text-[12px] font-extrabold text-[#a98d68] hover:text-[#6b4a2f]"
         >
           {mode === "zen" ? <Leaf className="size-4" /> : <Home className="size-4" />}
-          {mode === "zen" ? "Terminar sesión zen" : "Terminar la ronda"}
+          {mode === "zen"
+            ? "Terminar sesión zen"
+            : mode === "levels"
+              ? "Salir a los niveles"
+              : "Terminar la ronda"}
         </button>
       </motion.div>
     </motion.div>

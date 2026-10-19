@@ -13,8 +13,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   CATEGORY_CAPS,
+  LEVELS,
+  LEVEL_CLEAR_BONUS,
   LOW_TIME_SECONDS,
   ROUND_SECONDS,
+  STAR_THRESHOLDS,
   TIER_THRESHOLDS,
   TIME_BONUS_SECONDS,
   TIME_CAP_SECONDS,
@@ -32,7 +35,15 @@ import {
 } from "../game/logic";
 import { sfx } from "../game/sound";
 import { storage } from "../game/storage";
-import type { Feedback, Gain, GameMode, Order, ScreenId } from "../game/types";
+import type {
+  Feedback,
+  Gain,
+  GameMode,
+  LevelDef,
+  LevelOutcome,
+  Order,
+  ScreenId,
+} from "../game/types";
 
 /** Micro-vibración táctil defensiva (no existe en todos lados). */
 function buzz(pattern: number | number[]): void {
@@ -56,12 +67,48 @@ export function zenTitleFor(level: number): string {
   return ZEN_TITLES[idx];
 }
 
+/** Tier fijo → "served" equivalente, para forzar complejidad. */
+function servedForTier(tier: number): number {
+  return TIER_THRESHOLDS[Math.min(Math.max(0, tier), TIER_THRESHOLDS.length - 1)];
+}
+
+/** Estrellas según el tiempo que te haya sobrado al cerrar. */
+function starsFor(remaining: number, total: number): number {
+  const ratio = total > 0 ? remaining / total : 0;
+  if (ratio >= STAR_THRESHOLDS.three) return 3;
+  if (ratio >= STAR_THRESHOLDS.two) return 2;
+  return 1;
+}
+
+/** Un nivel está abierto si el anterior ya tiene al menos 1 estrella. */
+export function isLevelUnlocked(index: number, stars: number[]): boolean {
+  return index === 0 || (stars[index - 1] ?? 0) > 0;
+}
+
 export interface SushiGame {
   screen: ScreenId;
   mode: GameMode;
   startGame: (mode: GameMode) => void;
   goHome: () => void;
   endRound: () => void;
+
+  /* ─── Modo Pedidos ─── */
+  /** Abre la pantalla de selección de niveles. */
+  openLevels: () => void;
+  /** Arranca un nivel concreto (índice 0-based). */
+  startLevel: (index: number) => void;
+  /** Pasa al siguiente nivel disponible tras ganar. */
+  nextLevel: () => void;
+  /** Nivel en curso, o null si no estamos en modo Pedidos. */
+  level: LevelDef | null;
+  /** Índice del nivel en curso. */
+  levelIndex: number;
+  /** Estrellas conseguidas en cada nivel (persistidas). */
+  levelStars: number[];
+  /** Resultado del último nivel jugado. */
+  levelOutcome: LevelOutcome | null;
+  /** Segundos totales de la ronda actual (para la barra del HUD). */
+  totalTime: number;
 
   timeLeft: number;
   score: number;
@@ -126,6 +173,14 @@ export function useSushiGame(): SushiGame {
   const [bestZenLevel, setBestZenLevel] = useState<number>(() => storage.getZenLevel());
   const [levelUp, setLevelUp] = useState<number | null>(null);
 
+  /* Modo Pedidos: nivel activo, estrellas persistidas y resultado */
+  const [levelIndex, setLevelIndex] = useState(0);
+  const [levelStars, setLevelStars] = useState<number[]>(() =>
+    storage.getLevelStars(LEVELS.length)
+  );
+  const [levelOutcome, setLevelOutcome] = useState<LevelOutcome | null>(null);
+  const [totalTime, setTotalTime] = useState(ROUND_SECONDS);
+
   const [plate, setPlate] = useState<string[]>([]);
   const [popIndex, setPopIndex] = useState(-1);
   const [order, setOrder] = useState<Order>(() => generateOrder(0, 1));
@@ -155,9 +210,9 @@ export function useSushiGame(): SushiGame {
     []
   );
 
-  /* ─── Cronómetro: solo en rush y con la partida en marcha ───── */
+  /* ─── Cronómetro: rush y pedidos; zen nunca corre ──────────── */
   useEffect(() => {
-    if (screen !== "playing" || mode !== "rush" || paused) return;
+    if (screen !== "playing" || mode === "zen" || paused) return;
     const iv = window.setInterval(() => {
       setTimeLeft((prev) => {
         const next = Math.max(0, +(prev - 0.1).toFixed(2));
@@ -170,13 +225,26 @@ export function useSushiGame(): SushiGame {
     return () => window.clearInterval(iv);
   }, [screen, mode, paused]);
 
-  /* ─── Fin de ronda (rush) ───────────────────────────────────── */
+  /* ─── Se acabó el tiempo ────────────────────────────────────── */
   useEffect(() => {
-    if (screen !== "playing" || mode !== "rush" || timeLeft > 0 || closingRef.current) return;
+    if (screen !== "playing" || mode === "zen" || timeLeft > 0 || closingRef.current) return;
     closingRef.current = true;
     setScreen("over");
     setFlight(null);
     setMoodFlash(null);
+
+    if (mode === "levels") {
+      // Nivel fallido: no se alcanzó la meta antes del cierre.
+      setLevelOutcome({
+        levelId: LEVELS[levelIndex].id,
+        won: false,
+        stars: 0,
+        previousStars: levelStars[levelIndex] ?? 0,
+      });
+      sfx.closing();
+      return;
+    }
+
     const final = score;
     if (final > storage.getBestScore()) {
       storage.setBestScore(final);
@@ -186,16 +254,17 @@ export function useSushiGame(): SushiGame {
     } else {
       sfx.closing();
     }
-  }, [screen, mode, timeLeft, score]);
+  }, [screen, mode, timeLeft, score, levelIndex, levelStars]);
 
   /* ─── Flujo ─────────────────────────────────────────────────── */
-  const startGame = useCallback((nextMode: GameMode) => {
-    sfx.unlock();
-    sfx.click();
+
+  /** Reinicio común a los tres modos. */
+  const resetRound = useCallback((nextMode: GameMode, seconds: number, firstServed: number) => {
     closingRef.current = false;
     setPaused(false);
     setMode(nextMode);
-    setTimeLeft(ROUND_SECONDS);
+    setTotalTime(seconds);
+    setTimeLeft(seconds);
     setScore(0);
     setServed(0);
     setStreak(0);
@@ -204,14 +273,65 @@ export function useSushiGame(): SushiGame {
     setLevelUp(null);
     setPlate([]);
     setPopIndex(-1);
-    setOrder(generateOrder(nextMode === "zen" ? zenServedFor(1) : 0, 1));
+    setOrder(generateOrder(firstServed, 1));
     setFeedback(null);
     setGain(null);
     setFlight(null);
     setMoodFlash(null);
     setIsRecord(false);
+    setLevelOutcome(null);
     setScreen("playing");
   }, []);
+
+  const startGame = useCallback(
+    (nextMode: GameMode) => {
+      sfx.unlock();
+      sfx.click();
+      if (nextMode === "levels") {
+        // Desde el menú, "Pedidos" abre primero la lista de niveles
+        setMode("levels");
+        setScreen("levels");
+        return;
+      }
+      resetRound(nextMode, ROUND_SECONDS, nextMode === "zen" ? zenServedFor(1) : 0);
+    },
+    [resetRound]
+  );
+
+  /** Pantalla de selección de niveles del modo Pedidos. */
+  const openLevels = useCallback(() => {
+    sfx.unlock();
+    sfx.click();
+    closingRef.current = false;
+    setPaused(false);
+    setMode("levels");
+    setLevelStars(storage.getLevelStars(LEVELS.length));
+    setScreen("levels");
+  }, []);
+
+  /** Arranca el nivel indicado con su meta y su reloj propios. */
+  const startLevel = useCallback(
+    (index: number) => {
+      const safe = Math.min(Math.max(0, index), LEVELS.length - 1);
+      const def = LEVELS[safe];
+      sfx.unlock();
+      sfx.click();
+      setLevelIndex(safe);
+      resetRound("levels", def.seconds, servedForTier(def.tier));
+    },
+    [resetRound]
+  );
+
+  /** Tras superar un nivel, salta al siguiente (o vuelve a la lista). */
+  const nextLevel = useCallback(() => {
+    const next = levelIndex + 1;
+    if (next >= LEVELS.length) {
+      sfx.click();
+      setScreen("levels");
+      return;
+    }
+    startLevel(next);
+  }, [levelIndex, startLevel]);
 
   const goHome = useCallback(() => {
     sfx.click();
@@ -220,12 +340,18 @@ export function useSushiGame(): SushiGame {
     setScreen("start");
   }, []);
 
-  /** Salir de zen (o rendirse en rush) mostrando el resumen. */
+  /** Salir de zen/pedidos o rendirse en rush desde la pausa. */
   const endRound = useCallback(() => {
     sfx.click();
     setPaused(false);
     if (mode === "zen") {
       setScreen("start");
+      return;
+    }
+    if (mode === "levels") {
+      // Abandonar un nivel no cuenta como derrota: vuelve a la lista
+      closingRef.current = false;
+      setScreen("levels");
       return;
     }
     setTimeLeft(0);
@@ -331,6 +457,42 @@ export function useSushiGame(): SushiGame {
         }
         setOrder(generateOrder(zenServedFor(nextLevel), order.seq + 1));
         later(1500, () => setLevelUp(null));
+      } else if (mode === "levels") {
+        /* ── PEDIDOS: avanzar hacia la meta del nivel ─────────── */
+        const def = LEVELS[levelIndex];
+        const newStreak = streak + 1;
+        const mult = multiplierFor(newStreak);
+        const gained = pointsFor(order, mult);
+        const doneNow = served + 1;
+
+        setScore((s) => s + gained);
+        setServed(doneNow);
+        setStreak(newStreak);
+        setBestCombo((b) => Math.max(b, newStreak));
+        setGain({ gained, multiplier: mult, key });
+        sfx.success(newStreak);
+
+        if (doneNow >= def.goal) {
+          /* Meta alcanzada: cerrar el nivel y repartir estrellas */
+          closingRef.current = true;
+          const stars = starsFor(timeLeft, def.seconds);
+          const previous = levelStars[levelIndex] ?? 0;
+          setLevelStars(storage.setLevelStars(levelIndex, stars, LEVELS.length));
+          setLevelOutcome({ levelId: def.id, won: true, stars, previousStars: previous });
+          setScore((s) => s + LEVEL_CLEAR_BONUS);
+          setFeedback({ kind: "success", message: "¡Comanda completa!", key });
+          later(900, () => {
+            setScreen("over");
+            sfx.record();
+          });
+        } else {
+          setFeedback({
+            kind: "success",
+            message: `+${gained}¥  ${doneNow}/${def.goal} pedidos`,
+            key,
+          });
+          setOrder(generateOrder(servedForTier(def.tier), order.seq + 1));
+        }
       } else {
         /* ── RUSH: combo, yenes y segundos extra ─────────────── */
         const newStreak = streak + 1;
@@ -373,13 +535,33 @@ export function useSushiGame(): SushiGame {
       later(1900, () => setFeedback((f) => (f && f.key === key ? null : f)));
     }
     setPopIndex(-1);
-  }, [screen, mode, plate, order, streak, served, zenLevel, later]);
+  }, [
+    screen,
+    mode,
+    plate,
+    order,
+    streak,
+    served,
+    zenLevel,
+    levelIndex,
+    levelStars,
+    timeLeft,
+    later,
+  ]);
 
   return {
     screen,
     mode,
     startGame,
     goHome,
+    openLevels,
+    startLevel,
+    nextLevel,
+    level: mode === "levels" ? LEVELS[levelIndex] : null,
+    levelIndex,
+    levelStars,
+    levelOutcome,
+    totalTime,
     endRound,
     timeLeft,
     score,

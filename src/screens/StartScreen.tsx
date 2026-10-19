@@ -6,15 +6,18 @@
  * Muestra el récord y el mejor nivel zen, ambos persistidos.
  */
 import { motion } from "framer-motion";
-import { Leaf, Play, Timer, Trophy, Volume2, VolumeX } from "lucide-react";
+import { Leaf, ListChecks, Play, Timer, Trophy, Volume2, VolumeX } from "lucide-react";
 import { MouseChef } from "../components/MouseChef";
 import { SushiRenderer } from "../components/sushi/SushiRenderer";
+import { LEVELS } from "../game/constants";
 import type { GameMode } from "../game/types";
 import { zenTitleFor } from "../hooks/useSushiGame";
 
 interface StartScreenProps {
   bestScore: number;
   bestZenLevel: number;
+  /** Estrellas del modo Pedidos, para el resumen de progreso. */
+  levelStars: number[];
   muted: boolean;
   onToggleMute: () => void;
   onStart: (mode: GameMode) => void;
@@ -22,7 +25,16 @@ interface StartScreenProps {
 
 const SAMPLE_PLATE = ["shari", "salmon", "sriracha", "tobiko"];
 
-export function StartScreen({ bestScore, bestZenLevel, muted, onToggleMute, onStart }: StartScreenProps) {
+export function StartScreen({
+  bestScore,
+  bestZenLevel,
+  levelStars,
+  muted,
+  onToggleMute,
+  onStart,
+}: StartScreenProps) {
+  const totalStars = levelStars.reduce((a, b) => a + b, 0);
+
   return (
     <motion.div
       className="relative z-10 flex h-dvh overflow-y-auto p-3"
@@ -66,6 +78,27 @@ export function StartScreen({ bestScore, bestZenLevel, muted, onToggleMute, onSt
             <span className="block text-[11px] font-bold opacity-90">
               90 s · combos ×2.5 · rompe tu récord
             </span>
+          </span>
+        </motion.button>
+
+        {/* ── Modo PEDIDOS ── */}
+        <motion.button
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => onStart("levels")}
+          className="flex w-full items-center gap-3 rounded-2xl bg-gradient-to-r from-[#f2b65c] to-[#dd9433] p-3 text-left text-white shadow-[0_10px_24px_rgba(221,148,51,0.38)]"
+        >
+          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-white/25">
+            <ListChecks size={22} strokeWidth={2.8} />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-lg leading-tight font-extrabold">Pedidos 📋</span>
+            <span className="block text-[11px] font-bold opacity-90">
+              8 niveles · metas con reloj · gana estrellas
+            </span>
+          </span>
+          <span className="shrink-0 text-[11px] font-extrabold opacity-95">
+            {totalStars}/{LEVELS.length * 3} ⭐
           </span>
         </motion.button>
 

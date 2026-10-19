@@ -5,6 +5,8 @@
  * ────────────────────────────────────────────────────────────────
  */
 
+import type { LevelDef } from "./types";
+
 /** Duración inicial de la ronda, en segundos. */
 export const ROUND_SECONDS = 90;
 
@@ -63,6 +65,31 @@ export const ZEN_TITLES = [
   "Maestro del nigiri",
   "Leyenda del kaiten",
 ] as const;
+
+/* ─── Modo PEDIDOS (8 niveles con meta y cronómetro) ─────────── */
+
+/**
+ * Escalera de dificultad suave: sube el número de pedidos y el
+ * tier de los tickets, mientras el tiempo se mantiene ajustado
+ * pero justo. Pensada para completarse en una sentada y volver
+ * a por las 3 estrellas.
+ */
+export const LEVELS: readonly LevelDef[] = [
+  { id: 1, name: "Primer turno", goal: 3, seconds: 75, tier: 0 },
+  { id: 2, name: "Clientes del mediodía", goal: 4, seconds: 75, tier: 0 },
+  { id: 3, name: "Hora punta", goal: 4, seconds: 70, tier: 1 },
+  { id: 4, name: "Doble ración", goal: 5, seconds: 75, tier: 1 },
+  { id: 5, name: "Salsas cruzadas", goal: 5, seconds: 70, tier: 2 },
+  { id: 6, name: "Mesa grande", goal: 6, seconds: 75, tier: 2 },
+  { id: 7, name: "Noche de estreno", goal: 6, seconds: 70, tier: 3 },
+  { id: 8, name: "Gran banquete", goal: 7, seconds: 80, tier: 4 },
+] as const;
+
+/** Yenes extra al superar un nivel (propina del maestro). */
+export const LEVEL_CLEAR_BONUS = 120;
+
+/** Umbrales de tiempo restante (en %) para 3 y 2 estrellas. */
+export const STAR_THRESHOLDS = { three: 0.4, two: 0.15 } as const;
 
 /** Nombres de clientes del kaiten (cozy · kawaii). */
 export const CUSTOMER_NAMES = [

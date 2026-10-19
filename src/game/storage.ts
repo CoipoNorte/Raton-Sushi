@@ -17,6 +17,7 @@ const KEY_BEST = `${PREFIX}best-score`;
 const KEY_MUTED = `${PREFIX}muted`;
 const KEY_ZEN = `${PREFIX}zen-level`;
 const KEY_AUTO = `${PREFIX}auto-advance`;
+const KEY_STARS = `${PREFIX}level-stars`;
 
 /** Driver de respaldo en memoria (incógnito / errores de cuota). */
 class MemoryDriver {
@@ -113,6 +114,28 @@ class GameStorage {
   }
   setAutoAdvance(on: boolean): void {
     this.driver.set(KEY_AUTO, on ? "1" : "0");
+  }
+
+  /**
+   * Estrellas del modo Pedidos, una cifra 0-3 por nivel.
+   * Se guarda como cadena compacta ("3201...") para que migrar a
+   * IndexedDB o ampliar el nº de niveles sea trivial.
+   */
+  getLevelStars(total: number): number[] {
+    const raw = this.driver.get(KEY_STARS) ?? "";
+    return Array.from({ length: total }, (_, i) => {
+      const n = Number(raw[i]);
+      return Number.isFinite(n) && n >= 0 && n <= 3 ? n : 0;
+    });
+  }
+
+  /** Guarda las estrellas de un nivel solo si mejoran la marca. */
+  setLevelStars(index: number, stars: number, total: number): number[] {
+    const current = this.getLevelStars(total);
+    if (index < 0 || index >= total) return current;
+    current[index] = Math.max(current[index], Math.min(3, Math.max(0, Math.floor(stars))));
+    this.driver.set(KEY_STARS, current.join(""));
+    return current;
   }
 }
 

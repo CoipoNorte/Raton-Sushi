@@ -9,18 +9,33 @@
  * desbordar jamás en pantallas estrechas.
  */
 import { motion } from "framer-motion";
-import { ChefHat, Coins, Flame, Leaf, Pause, Timer, Volume2, VolumeX } from "lucide-react";
+import {
+  ChefHat,
+  ClipboardList,
+  Coins,
+  Flame,
+  Leaf,
+  Pause,
+  Timer,
+  Volume2,
+  VolumeX,
+} from "lucide-react";
 import { LOW_TIME_SECONDS, ROUND_SECONDS } from "../game/constants";
 import type { GameMode } from "../game/types";
 
 interface HudProps {
   mode: GameMode;
   timeLeft: number;
+  /** Segundos totales de la ronda (la barra se escala con esto). */
+  totalTime: number;
   score: number;
   streak: number;
   multiplier: number;
   served: number;
   zenLevel: number;
+  /** Modo Pedidos: nº de nivel y meta de la comanda. */
+  levelNumber?: number;
+  levelGoal?: number;
   muted: boolean;
   onToggleMute: () => void;
   onPause: () => void;
@@ -60,18 +75,23 @@ function RoundButton({
 export function Hud({
   mode,
   timeLeft,
+  totalTime,
   score,
   streak,
   multiplier,
   served,
   zenLevel,
+  levelNumber,
+  levelGoal,
   muted,
   onToggleMute,
   onPause,
 }: HudProps) {
   const isZen = mode === "zen";
+  const isLevels = mode === "levels";
   const low = !isZen && timeLeft <= LOW_TIME_SECONDS;
-  const pct = Math.max(0, Math.min(100, (timeLeft / ROUND_SECONDS) * 100));
+  const base = totalTime > 0 ? totalTime : ROUND_SECONDS;
+  const pct = Math.max(0, Math.min(100, (timeLeft / base) * 100));
 
   return (
     <>
@@ -107,6 +127,19 @@ export function Hud({
         }}
       >
         <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
+          {isLevels && (
+            <motion.span
+              key={`lv-${levelNumber}-${served}`}
+              className={`${pill} bg-gradient-to-r from-[#ffe2c4]/85 to-[#ffd0ad]/85`}
+              initial={{ scale: 0.8 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", stiffness: 460, damping: 17 }}
+            >
+              <ClipboardList size={12} strokeWidth={3} className="text-[#c07f3e]" />
+              N{levelNumber} · {served}/{levelGoal}
+            </motion.span>
+          )}
+
           {isZen ? (
             <motion.span
               key={zenLevel}

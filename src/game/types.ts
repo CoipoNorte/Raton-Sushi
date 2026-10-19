@@ -54,15 +54,42 @@ export interface ValidationResult {
 }
 
 /** Pantallas principales del flujo. */
-export type ScreenId = "start" | "playing" | "over";
+export type ScreenId = "start" | "levels" | "playing" | "over";
 
 /**
  * Modos de juego:
- *  · rush → partida de 90 s contra el reloj, combos y récord.
- *  · zen  → sin reloj: un sushi por nivel, a tu ritmo, para
- *           relajarte. Los fallos no castigan, solo susurran.
+ *  · rush   → partida de 90 s contra el reloj, combos y récord.
+ *  · zen    → sin reloj: un sushi por nivel, a tu ritmo, para
+ *             relajarte. Los fallos no castigan, solo susurran.
+ *  · levels → "Pedidos": 8 niveles con meta fija (N pedidos en un
+ *             tiempo dado), dificultad en escalera y 1-3 estrellas
+ *             según lo rápido que cierres la comanda.
  */
-export type GameMode = "rush" | "zen";
+export type GameMode = "rush" | "zen" | "levels";
+
+/** Definición de un nivel del modo Pedidos. */
+export interface LevelDef {
+  /** Número visible (1..8). */
+  id: number;
+  /** Nombre temático del turno. */
+  name: string;
+  /** Pedidos perfectos necesarios para superarlo. */
+  goal: number;
+  /** Segundos totales disponibles. */
+  seconds: number;
+  /** Tier de complejidad de los tickets (0..4). */
+  tier: number;
+}
+
+/** Resultado al cerrar un nivel del modo Pedidos. */
+export interface LevelOutcome {
+  levelId: number;
+  won: boolean;
+  /** Estrellas obtenidas (0 si se falla, 1-3 al superarlo). */
+  stars: number;
+  /** Estrellas que ya tenías antes de esta partida. */
+  previousStars: number;
+}
 
 /** Perfil de dispositivo para proporciones de la mesa. */
 export type DeviceKind = "mobile" | "tablet" | "desktop";

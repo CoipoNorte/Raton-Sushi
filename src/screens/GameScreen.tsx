@@ -160,11 +160,14 @@ export function GameScreen({ game, layout }: GameScreenProps) {
     <Hud
       mode={game.mode}
       timeLeft={game.timeLeft}
+      totalTime={game.totalTime}
       score={game.score}
       streak={game.streak}
       multiplier={game.multiplier}
       served={game.served}
       zenLevel={game.zenLevel}
+      levelNumber={game.level?.id}
+      levelGoal={game.level?.goal}
       muted={game.muted}
       onToggleMute={game.toggleMute}
       onPause={game.togglePause}
